@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PuttBook · Yardage Book Insert</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── Print page definition ─────────────────────────────────────────── */
+    @page {
+      size: 3.75in 6.5in;
+      margin: 0;
+    }
+
+    /* Force background colors to print */
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Outfit', -apple-system, sans-serif;
+      background: #888;
+    }
+
+    /* ── Screen-only controls ──────────────────────────────────────────── */
+    @media screen {
+      body { display: flex; flex-direction: column; align-items: center; padding: 24px; min-height: 100vh; }
+      .screen-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; justify-content: center; }
+      .print-btn {
+        background: #1e8449; color: #fff; border: none; border-radius: 8px;
+        padding: 9px 20px; font-size: .9rem; font-weight: 700; cursor: pointer;
+        font-family: inherit; transition: background .15s;
+      }
+      .print-btn:hover { background: #196f3d; }
+      .back-link { color: #5ac8fa; font-size: .84rem; text-decoration: none; }
+      .print-hint { font-size: .78rem; color: #ccc; }
+    }
+    @media print {
+      .screen-bar { display: none !important; }
+      body { background: none; padding: 0; }
+    }
+
+    /* ── The yardage-book page ─────────────────────────────────────────── */
+    .page-box {
+      width: 3.75in;
+      height: 6.5in;
+      background: #fff;
+      color: #000;
+      padding: 0.09in 0.09in 0.08in;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 4px 22px rgba(0,0,0,.35);
+    }
+    @media print { .page-box { box-shadow: none; } }
+
+    /* ── Header ────────────────────────────────────────────────────────── */
+    .pg-title {
+      font-size: 9pt;
+      font-weight: 800;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+      color: #1e2533;
+      line-height: 1;
+    }
+    .pg-sub {
+      font-size: 6.5pt;
+      color: #444;
+      margin-top: 2pt;
+      margin-bottom: 4pt;
+    }
+    .pg-divider {
+      border: none;
+      border-top: 1pt solid #333;
+      margin: 0 0 2pt;
+    }
+
+    /* ── Matrix table ──────────────────────────────────────────────────── */
+    .matrix-wrap { flex: 1; overflow: hidden; }
+
+    .print-tbl {
+      width: 100%;
+      border-collapse: collapse;
+      height: 100%;
+      table-layout: fixed;
+    }
+
+    .print-tbl th, .print-tbl td {
+      border: 0.4pt solid #bbb;
+      text-align: center;
+      vertical-align: middle;
+      overflow: hidden;
+      padding: 0;
+      font-family: inherit;
+    }
+
+    /* distance column — leftmost, sticky on screen if scrolled */
+    .print-tbl .col-dist {
+      font-size: 5.5pt;
+      font-weight: 700;
+      color: #222;
+      background: #f4f4f6;
+      border-right: 1pt solid #888;
+      width: 21pt;
+    }
+
+    /* slope header row */
+    .print-tbl thead th {
+      font-size: 6pt;
+      font-weight: 700;
+      height: 18pt;
+      line-height: 1;
+    }
+
+    /* data rows */
+    .print-tbl tbody tr  { height: 16.2pt; }
+
+    /* data cells */
+    .print-tbl tbody td { font-size: 6.5pt; color: #111; }
+
+    /* ── Stroke band cells ─────────────────────────────────────────────── */
+    .c-ref  { background: #1a7c36 !important; color: #fff !important; font-weight: 800 !important; }
+    .c-zero { font-weight: 800 !important; }
+    .c-mid  { background: rgba(175,82,222,.65) !important; color: #fff !important; font-weight: 800 !important; }
+    .c-dbl  { background: rgba(90,200,250,.70) !important; color: #000 !important; font-weight: 800 !important; }
+    .c-over { background: rgba(255,69,58,.60)  !important; color: #fff !important; font-weight: 700 !important; }
+
+    /* ── Footer ────────────────────────────────────────────────────────── */
+    .pg-footer {
+      border-top: 0.5pt solid #aaa;
+      padding-top: 4pt;
+      margin-top: 2pt;
+    }
+    .legend-row {
+      display: flex;
+      gap: 7pt;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 3pt;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 2.5pt;
+      font-size: 5.5pt;
+      color: #222;
+    }
+    .legend-dot {
+      width: 7pt; height: 7pt;
+      border-radius: 50%;
+      flex-shrink: 0;
+      border: 0.5pt solid rgba(0,0,0,.15);
+    }
+    .params-row {
+      font-size: 5.5pt;
+      color: #444;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Screen controls (hidden in print) -->
+<div class="screen-bar">
+  <a href="puttbook.html" class="back-link">← PuttBook</a>
+  <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+  <span class="print-hint">In print dialog: set paper size to 3.75" × 6.5" · No margins</span>
+</div>
+
+<!-- The yardage-book insert -->
+<div class="page-box">
+  <div class="pg-title">Graybeard's PuttBook</div>
+  <div class="pg-sub" id="pgSub">Backswing Length Matrix</div>
+  <hr class="pg-divider">
+
+  <div class="matrix-wrap">
+    <table class="print-tbl">
+      <thead id="printHead"></thead>
+      <tbody id="printBody"></tbody>
+    </table>
+  </div>
+
+  <div class="pg-footer">
+    <div class="legend-row" id="legendRow"></div>
+    <div class="params-row" id="paramsRow"></div>
+  </div>
+</div>
+
+<script>
+// ── Load saved data ───────────────────────────────────────────────────────
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem('graybeards_puttbook')) || {}; } catch(e) {}
+
+const stimp          = saved.stimp          ?? 10;
+const baselineStroke  = saved.baselineStroke  ?? 23.0;
+const baselineDist   = saved.baselineDist   ?? 10;
+const myZeroStroke   = saved.myZeroStroke   ?? 23.0;
+const myMaxStroke    = saved.myMaxStroke    ?? 46.0;
+const strokeInCm     = saved.strokeInCm     !== false;
+const distInFt       = saved.distInFt       !== false;
+
+// ── Constants ─────────────────────────────────────────────────────────────
+const DISTANCES = [6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50];
+const SLOPES    = [-4,-3,-2,-1,0,1,2,3,4];
+const CM_TO_IN  = 1 / 2.54;
+const FT_TO_M   = 0.3048;
+
+const SLOPE_STYLE = {
+  '-4':{ hdrBg:'#922b21', hdrFg:'#fff', cellRgb:'192,57,43'  },
+  '-3':{ hdrBg:'#ba4a00', hdrFg:'#fff', cellRgb:'186,74,0'   },
+  '-2':{ hdrBg:'#d4ac0d', hdrFg:'#000', cellRgb:'212,172,13' },
+  '-1':{ hdrBg:'#b7950b', hdrFg:'#fff', cellRgb:'183,149,11' },
+   '0':{ hdrBg:'#1e2533', hdrFg:'#fff', cellRgb:'0,0,0'      },
+   '1':{ hdrBg:'#1e8449', hdrFg:'#fff', cellRgb:'30,132,73'  },
+   '2':{ hdrBg:'#196f3d', hdrFg:'#fff', cellRgb:'25,111,61'  },
+   '3':{ hdrBg:'#117a65', hdrFg:'#fff', cellRgb:'17,122,101' },
+   '4':{ hdrBg:'#0e6655', hdrFg:'#fff', cellRgb:'14,102,85'  },
+};
+
+// ── Formulas ──────────────────────────────────────────────────────────────
+const MU = 0.559 / stimp;
+
+function calcStroke(dist, slopePct) {
+  const eff = MU + slopePct / 100;
+  if (eff <= 0) return null;
+  return baselineStroke * Math.sqrt((dist / baselineDist) * (eff / MU));
+}
+function calcRoll(stroke, slopePct) {
+  const eff = MU + slopePct / 100;
+  if (eff <= 0) return Infinity;
+  return baselineDist * Math.pow(stroke / baselineStroke, 2) * MU / eff;
+}
+function rowForStroke(stroke, slopePct) {
+  const d = calcRoll(stroke, slopePct);
+  const lo = DISTANCES[0], hi = DISTANCES[DISTANCES.length - 1];
+  if (!isFinite(d) || d < lo - 1 || d > hi + 1) return null;
+  return DISTANCES.reduce((b, r) => Math.abs(r - d) < Math.abs(b - d) ? r : b);
+}
+
+// ── Display helpers ───────────────────────────────────────────────────────
+function dispS(cm)  { return (strokeInCm ? cm : cm * CM_TO_IN).toFixed(1); }
+function dispD(ft)  { return (distInFt   ? ft : ft * FT_TO_M ).toFixed(1); }
+const su = strokeInCm ? 'cm' : 'in';
+const du = distInFt   ? 'ft' : 'm';
+
+// ── Compute zones ─────────────────────────────────────────────────────────
+const zeroRow = {}, midRow = {}, dblRow = {};
+SLOPES.forEach(s => {
+  zeroRow[s] = rowForStroke(myZeroStroke,       s);
+  midRow[s]  = rowForStroke(myZeroStroke * 1.5, s);
+  dblRow[s]  = rowForStroke(myZeroStroke * 2,   s);
+});
+
+// ── Sub-heading ───────────────────────────────────────────────────────────
+document.getElementById('pgSub').textContent =
+  `Backswing Length (${su}) · Stimp ${stimp}`;
+
+// ── Header row ────────────────────────────────────────────────────────────
+const head = document.getElementById('printHead');
+let hdrHtml = `<tr><th class="col-dist">${du.toUpperCase()}</th>`;
+SLOPES.forEach(s => {
+  const sty = SLOPE_STYLE[String(s)];
+  const lbl = s === 0 ? 'Flat' : (s < 0 ? `${Math.abs(s)}↓` : `${s}↑`);
+  hdrHtml += `<th style="background:${sty.hdrBg};color:${sty.hdrFg};">${lbl}</th>`;
+});
+hdrHtml += '</tr>';
+head.innerHTML = hdrHtml;
+
+// ── Body rows ─────────────────────────────────────────────────────────────
+const body = document.getElementById('printBody');
+let bodyHtml = '';
+
+DISTANCES.forEach(dist => {
+  const isRef = dist === baselineDist;
+  bodyHtml += `<tr><td class="col-dist">${dispD(dist)}</td>`;
+
+  SLOPES.forEach(s => {
+    const req       = calcStroke(dist, s);
+    const isRefCell = isRef && s === 0;
+    const isZero    = zeroRow[s] === dist;
+    const isMid     = midRow[s]  === dist && !isZero;
+    const isDbl     = dblRow[s]  === dist && !isZero && !isMid;
+    const isOver    = req != null && req > myMaxStroke;
+    const sty       = SLOPE_STYLE[String(s)];
+
+    let cls = '', inlineStyle = '';
+
+    if (req == null) {
+      cls = ''; bodyHtml += `<td style="color:#bbb;font-style:italic;">—</td>`;
+      return;
+    }
+    if (isRefCell)     { cls = 'c-ref'; }
+    else if (isZero)   { cls = 'c-zero'; inlineStyle = `background:${sty.hdrBg};color:${sty.hdrFg};`; }
+    else if (isMid)    { cls = 'c-mid'; }
+    else if (isDbl)    { cls = 'c-dbl'; }
+    else if (isOver)   { cls = 'c-over'; }
+    else {
+      const op = (Math.abs(s) / 4) * 0.22;
+      if (s !== 0) inlineStyle = `background:rgba(${sty.cellRgb},${op});`;
+    }
+
+    bodyHtml += `<td class="${cls}" style="${inlineStyle}">${dispS(req)}</td>`;
+  });
+
+  bodyHtml += '</tr>';
+});
+body.innerHTML = bodyHtml;
+
+// ── Legend ────────────────────────────────────────────────────────────────
+const legendRow = document.getElementById('legendRow');
+legendRow.innerHTML = [
+  { color: '#1a7c36',           label: `Zero (${dispS(myZeroStroke)}${su})` },
+  { color: 'rgba(175,82,222,1)', label: `Mid (${dispS(myZeroStroke*1.5)}${su})` },
+  { color: 'rgba(90,200,250,1)', label: `Double (${dispS(myZeroStroke*2)}${su})` },
+  { color: 'rgba(255,69,58,1)',  label: `>${dispS(myMaxStroke)}${su} → velocity` },
+].map(({ color, label }) =>
+  `<span class="legend-item">
+    <span class="legend-dot" style="background:${color};"></span>${label}
+  </span>`
+).join('');
+
+// ── Params footer ─────────────────────────────────────────────────────────
+document.getElementById('paramsRow').textContent =
+  `Stimp: ${stimp} · Zero stroke: ${dispS(myZeroStroke)}${su} · ` +
+  `Baseline: ${dispS(baselineStroke)}${su} @ ${dispD(baselineDist)}${du} flat · ` +
+  `Max stroke: ${dispS(myMaxStroke)}${su} · Units: ${su} / ${du}`;
+</script>
+
+</body>
+</html>

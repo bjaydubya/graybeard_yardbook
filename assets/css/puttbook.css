@@ -1,0 +1,365 @@
+/*
+ * puttbook.css — Graybeard's PuttBook page styles
+ * Design tokens live in theme.css — do not duplicate variables here.
+ */
+
+/* ── Header (mirrors yardbook.css) ──────────────────────────────────────── */
+header {
+  background: var(--hdr); border-bottom: 1px solid var(--hdr-border);
+  padding: 0 20px; display: flex; align-items: center; gap: 16px;
+  position: sticky; top: 0; z-index: 100; height: 64px;
+}
+.logo {
+  display: flex; align-items: center; gap: 10px;
+  flex-shrink: 0; user-select: none; text-decoration: none;
+}
+.logo-mark  { width: 24px; height: 32px; color: var(--green); flex-shrink: 0; }
+.logo-name  { font-size: 1.3rem; font-weight: 800; color: var(--t1); letter-spacing: -.03em; line-height: 1; }
+.logo-sub   { font-size: .68rem; font-weight: 700; color: var(--green-text); letter-spacing: .12em; text-transform: uppercase; line-height: 1; margin-top: 2px; }
+.main-nav   { display: flex; gap: 4px; }
+.nav-link   { font-size: .84rem; font-weight: 500; color: var(--t2); text-decoration: none; padding: 6px 10px; border-radius: 8px; transition: background .14s, color .14s; }
+.nav-link:hover  { background: var(--nav-active); color: var(--t1); }
+.nav-link.active { background: var(--nav-active); color: var(--t1); font-weight: 600; }
+.hdr-right  { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+/* iOS-style theme toggle — matches yardbook header */
+.theme-toggle-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 50%;
+  width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--t2); padding: 0; flex-shrink: 0;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.theme-toggle-btn:hover { background: var(--nav-active); color: var(--t1); border-color: var(--t3); }
+.theme-toggle-btn svg   { display: block; }
+
+/* Shared button styles — mirrors yardbook.css */
+.mob-view-btn {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+  color: var(--t2); cursor: pointer; padding: 5px 12px; font-size: .78rem;
+  font-family: inherit; font-weight: 600; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 4px;
+  transition: background .15s, color .15s, border-color .15s; white-space: nowrap;
+}
+.mob-view-btn:hover { background: var(--nav-active); color: var(--t1); border-color: var(--t3); }
+
+.export-btn {
+  background: var(--accent-lo); border: 1px solid var(--accent); border-radius: 8px;
+  color: var(--accent); cursor: pointer; padding: 5px 12px; font-size: .78rem;
+  font-family: inherit; font-weight: 600;
+  transition: background .15s, color .15s; white-space: nowrap;
+}
+.export-btn:hover:not(:disabled) { background: var(--accent); color: #fff; }
+.export-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ── Layout ──────────────────────────────────────────────────────────────── */
+main {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 14px;
+  padding: 14px;
+  max-width: 1600px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+/* ── Panel ───────────────────────────────────────────────────────────────── */
+.panel {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; overflow: hidden;
+}
+.panel-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 14px; border-bottom: 1px solid var(--border);
+}
+.panel-title { font-size: .9rem; font-weight: 700; letter-spacing: .01em; }
+.panel-sub   { margin-top: 12px; }
+
+/* ── Stimp selector ──────────────────────────────────────────────────────── */
+.stimp-section { padding: 10px 14px 12px; }
+
+.stimp-label {
+  font-size: .68rem; font-weight: 700; color: var(--t3);
+  text-transform: uppercase; letter-spacing: .07em;
+  margin-bottom: 7px;
+}
+
+.stimp-btns {
+  display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px;
+}
+.stimp-btn {
+  flex: 1; min-width: 36px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--t2);
+  cursor: pointer; padding: 5px 4px; text-align: center;
+  font-size: .82rem; font-weight: 600; font-family: inherit;
+  transition: background .13s, border-color .13s, color .13s;
+}
+.stimp-btn:hover  { background: var(--nav-active); color: var(--t1); }
+.stimp-btn.active {
+  background: var(--green-lo); border-color: var(--green);
+  color: var(--green-text); font-weight: 700;
+}
+
+.stimp-manual-row {
+  display: flex; align-items: center; gap: 6px; margin-top: 6px;
+}
+.stimp-manual-lbl { font-size: .72rem; color: var(--t3); }
+.stimp-manual-inp {
+  width: 62px; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 7px; color: var(--t1); font-family: inherit;
+  font-size: .84rem; font-weight: 600; padding: 3px 7px; text-align: center;
+}
+.stimp-manual-inp:focus { outline: none; border-color: var(--green); }
+
+.mu-row {
+  display: flex; align-items: center; gap: 5px; margin-top: 8px;
+  padding-top: 8px; border-top: 1px solid var(--border);
+}
+.mu-lbl   { font-size: .72rem; color: var(--t3); }
+.mu-val   { font-size: .84rem; font-weight: 700; color: var(--accent); font-family: monospace; }
+.mu-eq    { font-size: .68rem; color: var(--t3); margin-left: auto; }
+
+/* ── Calibration panel ───────────────────────────────────────────────────── */
+.calib-section { padding: 10px 14px 12px; display: flex; flex-direction: column; gap: 8px; }
+
+.calib-row {
+  display: flex; align-items: center; gap: 7px;
+}
+.calib-lbl {
+  font-size: .74rem; font-weight: 600; color: var(--t2);
+  min-width: 80px; flex-shrink: 0;
+}
+.calib-inp {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 7px; color: var(--t1); font-family: inherit;
+  font-size: .86rem; font-weight: 600; padding: 4px 7px;
+  text-align: right; width: 70px;
+  transition: border-color .15s;
+}
+.calib-inp:focus { outline: none; border-color: var(--green); }
+/* Remove spinners */
+.calib-inp::-webkit-inner-spin-button,
+.calib-inp::-webkit-outer-spin-button { -webkit-appearance: none; }
+.calib-inp { -moz-appearance: textfield; }
+
+.calib-unit { font-size: .72rem; color: var(--t3); font-weight: 600; }
+
+.calib-note { font-size: .68rem; color: var(--t3); font-style: italic; }
+
+.my-stroke-row {
+  background: var(--green-lo);
+  border: 1px solid var(--green);
+  border-radius: 8px;
+  padding: 6px 9px;
+}
+.my-stroke-row .calib-lbl { color: var(--green-text); }
+
+/* ── Zero Putt Calculator ────────────────────────────────────────────────── */
+.zero-section { padding: 10px 14px 12px; }
+
+.zero-slope-row {
+  display: flex; align-items: center; gap: 7px; margin-bottom: 10px;
+}
+.zero-slope-lbl { font-size: .74rem; font-weight: 600; color: var(--t2); min-width: 80px; }
+.zero-slope-inp {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 7px; color: var(--t1); font-family: inherit;
+  font-size: .86rem; font-weight: 600; padding: 4px 7px;
+  text-align: right; width: 62px;
+  transition: border-color .15s;
+}
+.zero-slope-inp:focus { outline: none; border-color: var(--accent); }
+.zero-slope-inp::-webkit-inner-spin-button,
+.zero-slope-inp::-webkit-outer-spin-button { -webkit-appearance: none; }
+.zero-slope-inp { -moz-appearance: textfield; }
+
+.zero-results { display: flex; flex-direction: column; gap: 5px; }
+
+.zero-result-row {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface2); border-radius: 8px; padding: 6px 10px;
+}
+.zero-dir-lbl { font-size: .74rem; font-weight: 700; min-width: 58px; }
+.zero-dir-lbl.up   { color: var(--accent); }
+.zero-dir-lbl.down { color: var(--danger); }
+.zero-result-val {
+  font-size: .88rem; font-weight: 700; color: var(--t1); margin-left: auto;
+  font-family: monospace;
+}
+.zero-hint {
+  font-size: .68rem; color: var(--t3); padding-top: 4px;
+  border-top: 1px solid var(--border); margin-top: 2px;
+  font-style: italic;
+}
+
+/* ── Units panel ──────────────────────────────────────────────────────────── */
+.units-section { padding: 10px 14px 12px; display: flex; flex-direction: column; gap: 8px; }
+
+.unit-row  { display: flex; align-items: center; gap: 7px; }
+.unit-lbl  { font-size: .72rem; font-weight: 600; color: var(--t3); text-transform: uppercase; letter-spacing: .06em; min-width: 58px; }
+.unit-grp  { display: flex; gap: 5px; }
+.unit-btn  {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 7px; color: var(--t2); cursor: pointer;
+  padding: 4px 12px; font-size: .78rem; font-weight: 500;
+  font-family: inherit; transition: all .13s;
+}
+.unit-btn:hover  { background: var(--nav-active); color: var(--t1); }
+.unit-btn.active {
+  background: var(--accent-lo); border-color: var(--accent);
+  color: var(--accent); font-weight: 700;
+}
+
+/* ── Matrix panel ────────────────────────────────────────────────────────── */
+.pb-matrix-panel { overflow: visible; }
+
+.pb-matrix-scroll {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: calc(100vh - 130px);
+}
+
+/* Matrix table */
+.pb-tbl {
+  border-collapse: collapse;
+  font-size: .76rem;
+  min-width: max-content;
+}
+
+.pb-tbl thead { position: sticky; top: 0; z-index: 10; }
+
+/* Distance column header */
+.pb-th-dist {
+  font-size: .63rem; font-weight: 700; color: var(--t3);
+  text-transform: uppercase; letter-spacing: .07em;
+  padding: 8px 10px; text-align: center;
+  min-width: 48px; width: 48px;
+  border-right: 2px solid var(--sep);
+  background: var(--surface);
+  position: sticky; left: 0; z-index: 11;
+}
+
+/* Slope column headers */
+.pb-th-slope {
+  min-width: 54px; width: 54px;
+  height: 40px;
+  vertical-align: middle;
+  padding: 4px 4px;
+  text-align: center;
+  border-right: 1px solid rgba(255,255,255,.12);
+}
+.pb-th-slope:last-child { border-right: none; }
+
+.pb-slope-lbl {
+  font-size: .76rem; font-weight: 700;
+  white-space: nowrap; letter-spacing: .01em;
+  display: inline-block;
+}
+
+/* Body */
+.pb-tbl tbody tr { border-bottom: 1px solid var(--border); }
+.pb-tbl tbody tr:last-child { border-bottom: none; }
+
+/* Sticky distance label */
+.pb-td-dist {
+  font-size: .73rem; font-weight: 600; color: var(--t2);
+  padding: 2px 8px; text-align: center;
+  border-right: 2px solid var(--sep);
+  background: var(--surface);
+  position: sticky; left: 0; z-index: 1;
+  white-space: nowrap;
+}
+.pb-ref-dist {
+  font-weight: 800; color: var(--t1);
+  background: var(--surface2);
+  border-top: 1px solid var(--sep);
+  border-bottom: 1px solid var(--sep);
+}
+
+/* Data cells */
+.pb-td-cell {
+  padding: 2px 4px; text-align: center;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  height: 22px; min-width: 54px;
+  font-size: .75rem;
+}
+.pb-td-cell:last-child { border-right: none; }
+
+/* Baseline reference cell (e.g. 10ft flat = 23.0cm) */
+.pb-ref-cell {
+  background: #1a7c36 !important;
+  color: #fff !important;
+  font-weight: 800 !important;
+  font-size: .78rem !important;
+}
+
+/* Zero stroke row (per column) — uses inline column color via JS */
+.pb-zero-row { font-weight: 800 !important; }
+
+/* Mid stroke row (1.5×) — purple */
+.pb-mid-row {
+  background: rgba(175,82,222,.70) !important;
+  color: #fff !important;
+  font-weight: 800 !important;
+}
+
+/* Double stroke row — consistent blue regardless of slope column */
+.pb-dbl-row {
+  background: rgba(90,200,250,.70) !important;
+  color: #000 !important;
+  font-weight: 800 !important;
+}
+
+/* Max stroke exceeded — needs velocity not length */
+.pb-max-exceeded {
+  background: rgba(255,69,58,.55) !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+}
+
+/* Impossible cell */
+.pb-impossible {
+  color: var(--t3) !important;
+  font-style: italic;
+}
+
+/* Alternating row shade */
+.pb-tbl tbody tr:nth-child(even) .pb-td-cell { background: var(--surface2); }
+
+/* ── Right column wrapper (matrix + legend stacked) ─────────────────────── */
+.pb-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* ── Notes legend panel ──────────────────────────────────────────────────── */
+.pb-notes {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.pb-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: .78rem;
+  color: var(--t2);
+  line-height: 1.5;
+}
+
+.pb-note strong { color: var(--t1); }
+.pb-note em     { font-style: italic; color: var(--t1); }
+
+.pb-note-dot {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 3px;
+  box-shadow: 0 0 0 2px rgba(0,0,0,.2);
+}

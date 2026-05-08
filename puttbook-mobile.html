@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="PuttBook">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="favicon.svg">
+  <title>PuttBook · Matrix</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <link rel="stylesheet" href="assets/css/puttbook.css">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%; height: 100dvh;
+      overflow: hidden;
+      background: var(--bg);
+      font-family: 'Outfit', -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Fixed header ─────────────────────────────────────────────────── */
+    .mob-hdr {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: calc(50px + env(safe-area-inset-top, 0px));
+      padding-top: env(safe-area-inset-top, 0px);
+      background: var(--hdr); border-bottom: 1px solid var(--hdr-border);
+      display: flex; align-items: flex-end; gap: 10px;
+      padding-left: 12px; padding-right: 12px; padding-bottom: 8px;
+      z-index: 200;
+    }
+    .mob-back { color: var(--accent); text-decoration: none; font-size: .82rem; font-weight: 600; white-space: nowrap; }
+    .mob-title { font-size: .95rem; font-weight: 800; color: var(--t1); letter-spacing: -.02em; flex: 1; text-align: center; }
+    .mob-badge { font-size: .70rem; font-weight: 700; border-radius: 20px; padding: 2px 9px; white-space: nowrap; flex-shrink: 0; background: var(--accent-lo); color: var(--accent); }
+
+    /* ── Full-screen scroll area ──────────────────────────────────────── */
+    .mob-wrap {
+      position: fixed;
+      top: calc(50px + env(safe-area-inset-top, 0px));
+      bottom: env(safe-area-inset-bottom, 0px);
+      left: 0; right: 0;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+    }
+
+    /* ── Compact cell overrides for phone ─────────────────────────────── */
+    .pb-th-dist  { min-width: 38px !important; width: 38px !important; font-size: .58rem !important; padding: 6px 3px !important; }
+    .pb-th-slope { min-width: 40px !important; width: 40px !important; height: 32px !important; }
+    .pb-slope-lbl { font-size: .68rem !important; }
+    .pb-td-dist  { font-size: .66rem !important; padding: 1px 3px !important; }
+    .pb-td-cell  { min-width: 40px !important; height: 18px !important; font-size: .66rem !important; }
+    .pb-ref-cell { font-size: .70rem !important; }
+
+    /* ── Empty state ──────────────────────────────────────────────────── */
+    .mob-empty {
+      position: fixed; top: calc(50px + env(safe-area-inset-top,0px)); left:0; right:0; bottom:0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 14px; padding: 32px; text-align: center;
+    }
+    .mob-empty-icon  { font-size: 2.5rem; }
+    .mob-empty-title { font-size: 1.1rem; font-weight: 700; color: var(--t1); }
+    .mob-empty-sub   { font-size: .86rem; color: var(--t2); line-height: 1.5; max-width: 300px; }
+    .mob-empty-link  {
+      background: var(--green-lo); color: var(--green-text); border: 1px solid var(--green);
+      border-radius: 10px; padding: 10px 22px; font-size: .9rem; font-weight: 700;
+      text-decoration: none; font-family: inherit;
+    }
+  </style>
+</head>
+<body>
+
+<header class="mob-hdr">
+  <a href="puttbook.html" class="mob-back">← App</a>
+  <div class="mob-title">⛳ PuttBook</div>
+  <span class="mob-badge" id="stimpBadge">—</span>
+</header>
+
+<div class="mob-wrap" id="mobWrap"></div>
+
+<script>
+// ── Load saved state ──────────────────────────────────────────────────────
+const KEY = 'graybeards_puttbook';
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e) {}
+
+const stimp         = saved.stimp         ?? 10;
+const baselineStroke = saved.baselineStroke ?? 23.0;
+const baselineDist  = saved.baselineDist  ?? 10;
+const myZeroStroke  = saved.myZeroStroke  ?? 23.0;
+const myMaxStroke   = saved.myMaxStroke   ?? 46.0;
+const strokeInCm    = saved.strokeInCm    !== false;
+const distInFt      = saved.distInFt      !== false;
+
+// ── Constants ─────────────────────────────────────────────────────────────
+const DISTANCES = [6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50];
+const SLOPES    = [-4,-3,-2,-1,0,1,2,3,4];
+const CM_TO_IN  = 1/2.54;
+const FT_TO_M   = 0.3048;
+
+const SLOPE_STYLE = {
+  '-4':{ hdrBg:'#922b21', hdrFg:'#fff', cellRgb:'192,57,43'  },
+  '-3':{ hdrBg:'#ba4a00', hdrFg:'#fff', cellRgb:'186,74,0'   },
+  '-2':{ hdrBg:'#d4ac0d', hdrFg:'#000', cellRgb:'212,172,13' },
+  '-1':{ hdrBg:'#b7950b', hdrFg:'#fff', cellRgb:'183,149,11' },
+   '0':{ hdrBg:'#1e2533', hdrFg:'#fff', cellRgb:'0,0,0'      },
+   '1':{ hdrBg:'#1e8449', hdrFg:'#fff', cellRgb:'30,132,73'  },
+   '2':{ hdrBg:'#196f3d', hdrFg:'#fff', cellRgb:'25,111,61'  },
+   '3':{ hdrBg:'#117a65', hdrFg:'#fff', cellRgb:'17,122,101' },
+   '4':{ hdrBg:'#0e6655', hdrFg:'#fff', cellRgb:'14,102,85'  },
+};
+
+// ── Apply theme — shared key, dark/light only ──────────────────────────────
+const _t = localStorage.getItem('graybeards_theme');
+document.documentElement.dataset.theme = _t === 'light' ? 'light' : 'dark';
+
+// ── Formulas ──────────────────────────────────────────────────────────────
+const MU = 0.559 / stimp;
+
+function calcStroke(dist, slopePct) {
+  const eff = MU + slopePct / 100;
+  if (eff <= 0) return null;
+  return baselineStroke * Math.sqrt((dist / baselineDist) * (eff / MU));
+}
+function calcRoll(stroke, slopePct) {
+  const eff = MU + slopePct / 100;
+  if (eff <= 0) return Infinity;
+  return baselineDist * Math.pow(stroke / baselineStroke, 2) * MU / eff;
+}
+function rowForStroke(stroke, slopePct) {
+  const d = calcRoll(stroke, slopePct);
+  const lo = DISTANCES[0], hi = DISTANCES[DISTANCES.length - 1];
+  if (!isFinite(d) || d < lo - 1 || d > hi + 1) return null;
+  return DISTANCES.reduce((b, r) => Math.abs(r - d) < Math.abs(b - d) ? r : b);
+}
+
+// ── Display ───────────────────────────────────────────────────────────────
+function disp(cm)  { const v = strokeInCm ? cm : cm * CM_TO_IN; return v.toFixed(1); }
+function dispD(ft) { const v = distInFt   ? ft : ft * FT_TO_M;  return v.toFixed(1); }
+
+// ── Header badge ──────────────────────────────────────────────────────────
+document.getElementById('stimpBadge').textContent = `S${stimp} · Z:${disp(myZeroStroke)}${strokeInCm ? 'cm' : 'in'}`;
+
+// ── Compute zones ─────────────────────────────────────────────────────────
+const zeroRow = {}, midRow = {}, dblRow = {};
+SLOPES.forEach(s => {
+  zeroRow[s] = rowForStroke(myZeroStroke,       s);
+  midRow[s]  = rowForStroke(myZeroStroke * 1.5, s);
+  dblRow[s]  = rowForStroke(myZeroStroke * 2,   s);
+});
+
+// ── Render ────────────────────────────────────────────────────────────────
+const wrap = document.getElementById('mobWrap');
+
+if (!DISTANCES.length) {
+  wrap.innerHTML = `<div class="mob-empty"><div class="mob-empty-icon">⛳</div>
+    <div class="mob-empty-title">No data yet</div>
+    <a href="puttbook.html" class="mob-empty-link">Go to PuttBook →</a></div>`;
+} else {
+  // Header row
+  let hdr = `<thead><tr><th class="pb-th-dist" style="position:sticky;left:0;z-index:11;">${distInFt ? 'FT' : 'M'}</th>`;
+  SLOPES.forEach(s => {
+    const sty = SLOPE_STYLE[String(s)];
+    const lbl = s === 0 ? 'Flat' : (s < 0 ? `${Math.abs(s)}%↓` : `${s}%↑`);
+    hdr += `<th class="pb-th-slope" style="background:${sty.hdrBg};color:${sty.hdrFg};"><span class="pb-slope-lbl">${lbl}</span></th>`;
+  });
+  hdr += '</tr></thead>';
+
+  // Body rows
+  let body = '<tbody>';
+  DISTANCES.forEach(dist => {
+    const isRef = dist === baselineDist;
+    const distCls = 'pb-td-dist' + (isRef ? ' pb-ref-dist' : '');
+    body += `<tr><td class="${distCls}" style="position:sticky;left:0;z-index:1;">${dispD(dist)}</td>`;
+
+    SLOPES.forEach(s => {
+      const req       = calcStroke(dist, s);
+      const isRefCell = isRef && s === 0;
+      const isZero    = zeroRow[s] === dist;
+      const isMid     = midRow[s]  === dist && !isZero;
+      const isDbl     = dblRow[s]  === dist && !isZero && !isMid;
+      const isOver    = req != null && req > myMaxStroke;
+      const sty       = SLOPE_STYLE[String(s)];
+
+      if (req == null) {
+        body += `<td class="pb-td-cell pb-impossible">—</td>`;
+      } else if (isRefCell) {
+        body += `<td class="pb-td-cell pb-ref-cell">${disp(req)}</td>`;
+      } else if (isZero) {
+        body += `<td class="pb-td-cell pb-zero-row" style="background:${sty.hdrBg};color:${sty.hdrFg};font-weight:800;">${disp(req)}</td>`;
+      } else if (isMid) {
+        body += `<td class="pb-td-cell pb-mid-row">${disp(req)}</td>`;
+      } else if (isDbl) {
+        body += `<td class="pb-td-cell pb-dbl-row">${disp(req)}</td>`;
+      } else if (isOver) {
+        body += `<td class="pb-td-cell pb-max-exceeded">${disp(req)}</td>`;
+      } else {
+        const op = (Math.abs(s) / 4) * 0.30;
+        const bg = s !== 0 ? `background:rgba(${sty.cellRgb},${op});` : '';
+        body += `<td class="pb-td-cell" style="${bg}">${disp(req)}</td>`;
+      }
+    });
+    body += '</tr>';
+  });
+  body += '</tbody>';
+
+  wrap.innerHTML = `<table class="pb-tbl" style="position:relative;">${hdr}${body}</table>`;
+}
+</script>
+</body>
+</html>

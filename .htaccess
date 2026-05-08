@@ -1,0 +1,27 @@
+# ── Graybeard's YardBook — Cache control ───────────────────────────────────
+#
+# HTML pages always reload fresh — ensures users see the latest version
+# after an upload without needing a hard refresh.
+#
+# CSS/JS are given a short window (1 hour) so repeat visits are fast,
+# but a new upload is picked up within the hour.
+# To force immediate CSS/JS pickup, bump ?v=X on those file references.
+
+<IfModule mod_headers.c>
+    # HTML — never cache
+    <FilesMatch "\.(html)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+
+    # CSS + JS — 1-hour cache (fast repeat visits, still refreshes daily)
+    <FilesMatch "\.(css|js)$">
+        Header set Cache-Control "max-age=3600, must-revalidate"
+    </FilesMatch>
+
+    # Images/fonts — longer cache (these never change)
+    <FilesMatch "\.(svg|woff2|woff|ttf|ico|png|jpg|gif)$">
+        Header set Cache-Control "max-age=604800, public"
+    </FilesMatch>
+</IfModule>

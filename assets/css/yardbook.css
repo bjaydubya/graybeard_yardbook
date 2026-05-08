@@ -1,0 +1,573 @@
+/*
+ * yardbook.css — page-specific styles for YardBook
+ * Design tokens live in theme.css — do not duplicate variables here.
+ */
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+header {
+  background: var(--hdr);
+  border-bottom: 1px solid var(--hdr-border);
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 64px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  user-select: none;
+  text-decoration: none;
+}
+.logo-mark { width: 24px; height: 32px; color: var(--green); flex-shrink: 0; }
+.logo-name { font-size: 1.3rem; font-weight: 800; color: var(--t1); letter-spacing: -.03em; line-height: 1; }
+.logo-sub  { font-size: .68rem; font-weight: 700; color: var(--green-text); letter-spacing: .12em; text-transform: uppercase; line-height: 1; margin-top: 2px; }
+
+/* Future multi-page nav — hidden until there's more than one page */
+.main-nav { display: flex; gap: 4px; }
+.nav-link {
+  font-size: .84rem; font-weight: 500; color: var(--t2);
+  text-decoration: none; padding: 6px 10px; border-radius: 8px;
+  transition: background .14s, color .14s;
+}
+.nav-link:hover   { background: var(--nav-active); color: var(--t1); }
+.nav-link.active  { background: var(--nav-active); color: var(--t1); font-weight: 600; }
+
+.hdr-right { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+
+/* iOS-style theme toggle — circular icon button */
+.theme-toggle-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--t2); padding: 0; flex-shrink: 0;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.theme-toggle-btn:hover { background: var(--nav-active); color: var(--t1); border-color: var(--t3); }
+.theme-toggle-btn svg   { display: block; }
+
+.mob-view-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--t2);
+  cursor: pointer;
+  padding: 5px 12px;
+  font-size: .78rem;
+  font-family: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: background .15s, color .15s, border-color .15s;
+  white-space: nowrap;
+}
+.mob-view-btn:hover { background: var(--nav-active); color: var(--t1); border-color: var(--t3); }
+
+.export-btn {
+  background: var(--accent-lo);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 5px 12px;
+  font-size: .78rem;
+  font-family: inherit;
+  font-weight: 600;
+  transition: background .15s, color .15s;
+  white-space: nowrap;
+}
+.export-btn:hover:not(:disabled) { background: var(--accent); color: #fff; }
+.export-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ── Layout ──────────────────────────────────────────────────────────────── */
+main {
+  display: grid;
+  grid-template-columns: 296px 1fr;
+  gap: 14px;
+  padding: 14px;
+  max-width: 1800px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+/* ── Panel ───────────────────────────────────────────────────────────────── */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.panel-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.panel-title { font-size: .9rem; font-weight: 700; letter-spacing: .01em; }
+
+.badge {
+  font-size: .68rem; font-weight: 700;
+  border-radius: 20px; padding: 2px 9px;
+  background: var(--green-lo); color: var(--green-text);
+  transition: background .2s, color .2s;
+}
+.badge.warn   { background: var(--warn-lo);   color: var(--warn); }
+.badge.danger { background: var(--danger-lo); color: var(--danger); }
+
+/* ── Club Table ──────────────────────────────────────────────────────────── */
+.club-tbl { width: 100%; border-collapse: collapse; }
+
+.club-tbl thead th {
+  font-size: .64rem; font-weight: 700; color: var(--t3);
+  text-transform: uppercase; letter-spacing: .07em;
+  padding: 6px 8px 5px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.club-tbl thead th.c { text-align: center; }
+
+.col-drag { width: 14px; }
+.col-name { width: 48px; }
+.col-yds  { width: 68px; }
+.col-spd  { width: 68px; }
+.col-act  { width: 26px; }
+.col-del  { width: 26px; }
+
+.club-row { border-bottom: 1px solid var(--border); transition: background .1s; }
+.club-row:last-child { border-bottom: none; }
+.club-row:hover { background: var(--nav-active); }
+.club-row.drag-over { background: var(--green-lo); }
+.club-row.dragging  { opacity: .35; }
+.club-row td { padding: 3px 6px; vertical-align: middle; }
+
+.drag-handle {
+  display: block; text-align: center;
+  cursor: grab; color: var(--t3); font-size: .82rem;
+  opacity: .55; user-select: none; line-height: 1;
+}
+.drag-handle:active { cursor: grabbing; }
+
+/* Inputs inside club rows */
+.ci {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--t1);
+  font-family: inherit;
+  font-size: .85rem;
+  font-weight: 600;
+  width: 100%;
+  padding: 3px 5px;
+  transition: border-color .15s;
+}
+.ci:focus { outline: none; border-color: var(--green); }
+.ci.name { text-align: center; text-transform: uppercase; width: 44px; }
+.ci.num  { text-align: center; }
+
+/* Putter row — subtle green tint, separator from the regular clubs */
+.club-row.putter-row              { background: var(--green-lo); border-top: 1px solid var(--sep); }
+.club-row.putter-row:hover        { background: rgba(48,209,88,.18); }
+.club-row.putter-row .drag-handle { color: var(--green-text); opacity: .7; }
+
+/* Remove browser spinners from number inputs inside the table */
+.ci.num::-webkit-inner-spin-button,
+.ci.num::-webkit-outer-spin-button { -webkit-appearance: none; }
+.ci.num { -moz-appearance: textfield; }
+
+/* Action buttons (↓ / ↑) and delete (✕) */
+.act-btn {
+  background: none; border: none; cursor: pointer;
+  padding: 3px 4px; border-radius: 6px;
+  color: var(--t3); font-size: 1rem; font-weight: 700;
+  line-height: 1; display: block; width: 100%;
+  transition: background .12s, color .12s;
+}
+.act-btn:hover:not(:disabled) { background: var(--accent-lo); color: var(--accent); }
+.act-btn:disabled { opacity: .22; cursor: not-allowed; }
+
+.del-btn {
+  background: none; border: none; cursor: pointer;
+  padding: 3px 4px; border-radius: 6px;
+  color: var(--t3); font-size: .78rem; font-weight: 700;
+  line-height: 1; display: block; width: 100%;
+  transition: background .12s, color .12s;
+}
+.del-btn:hover { background: var(--danger-lo); color: var(--danger); }
+
+/* Add-club button */
+.add-row { padding: 8px 14px; border-top: 1px solid var(--border); }
+.add-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: none; border: 1px dashed var(--border);
+  border-radius: 8px; color: var(--t3); cursor: pointer;
+  padding: 6px 12px; font-family: inherit; font-size: .79rem;
+  font-weight: 500; transition: border-color .15s, color .15s;
+  width: 100%;
+}
+.add-btn:hover:not(:disabled) { border-color: var(--green); color: var(--green); }
+.add-btn:disabled { opacity: .3; cursor: not-allowed; }
+
+.add-hint {
+  font-size: .72rem;
+  color: var(--t3);
+  padding: 5px 12px 0;
+  font-style: italic;
+}
+
+/* ── Yardage validation toast ────────────────────────────────────────────── */
+.toast-wrap {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  pointer-events: none;
+}
+.toast {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--danger);
+  border-radius: 12px;
+  padding: 13px 18px;
+  font-size: .88rem;
+  font-family: inherit;
+  color: var(--t1);
+  box-shadow: var(--shadow);
+  max-width: 360px;
+  text-align: center;
+  line-height: 1.45;
+  pointer-events: all;
+  cursor: pointer;
+  animation: toast-in .22s ease;
+}
+.toast.out { animation: toast-out .25s ease forwards; }
+
+@keyframes toast-in  { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+@keyframes toast-out { from { opacity:1; transform:translateY(0); } to { opacity:0; transform:translateY(14px); } }
+
+/* Footnote */
+.footnote {
+  padding: 6px 14px;
+  font-size: .76rem;
+  color: var(--t2);
+  border-top: 1px solid var(--border);
+}
+
+/* ── Garage ──────────────────────────────────────────────────────────────── */
+.garage-wrap { margin-top: 12px; }
+
+.garage-hdr {
+  display: flex; align-items: center; gap: 7px;
+  padding: 9px 14px 6px;
+}
+.garage-title { font-size: .82rem; font-weight: 700; color: var(--t2); }
+.garage-hint  { font-size: .67rem; color: var(--t3); margin-left: auto; }
+
+.garage-empty {
+  padding: 14px; text-align: center;
+  font-size: .78rem; color: var(--t3); font-style: italic;
+}
+
+/* ── Matrix (right panel) ────────────────────────────────────────────────── */
+.matrix-panel { overflow: visible; }
+
+/* Elevation bar */
+.elev-bar {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 9px 14px; border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+}
+.elev-group {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 9px; padding: 5px 10px;
+}
+.elev-lbl {
+  font-size: .65rem; font-weight: 700; color: var(--t3);
+  text-transform: uppercase; letter-spacing: .07em; white-space: nowrap;
+}
+.elev-inp {
+  background: none; border: none; color: var(--t1);
+  font-family: inherit; font-size: .86rem; font-weight: 700;
+  width: 68px; text-align: right; padding: 0;
+}
+.elev-inp:focus { outline: none; }
+.elev-inp::-webkit-inner-spin-button,
+.elev-inp::-webkit-outer-spin-button { -webkit-appearance: none; }
+.elev-inp { -moz-appearance: textfield; }
+
+.elev-unit { font-size: .67rem; color: var(--t3); font-weight: 600; }
+.elev-arrow { font-size: .9rem; color: var(--t3); flex-shrink: 0; }
+
+.pct-inp {
+  background: none; border: none; font-family: inherit;
+  font-size: .88rem; font-weight: 700; width: 50px;
+  text-align: right; padding: 0;
+}
+.pct-inp:focus { outline: none; }
+.pct-inp::-webkit-inner-spin-button,
+.pct-inp::-webkit-outer-spin-button { -webkit-appearance: none; }
+.pct-inp { -moz-appearance: textfield; }
+
+.pct-inp.pos  { color: var(--green); }
+.pct-inp.neg  { color: var(--danger); }
+.pct-inp.zero { color: var(--t2); }
+
+.pct-override-flag {
+  font-size: .62rem; color: var(--warn); font-weight: 600;
+  background: var(--warn-lo); border-radius: 4px; padding: 1px 5px;
+  white-space: nowrap;
+}
+
+/* Elevation controls inside the units panel */
+.elev-panel-sep { border-top: 1px solid var(--border); }
+.elev-panel-hdr {
+  padding: 7px 14px 3px;
+  font-size: .68rem; font-weight: 700; color: var(--t3);
+  text-transform: uppercase; letter-spacing: .07em;
+}
+.elev-panel-body { padding: 4px 14px 10px; display: flex; flex-direction: column; gap: 6px; }
+.elev-panel-row  { display: flex; gap: 7px; }
+.elev-panel-body .elev-group {
+  flex: 1;
+  background: var(--surface2);
+}
+.elev-panel-body .elev-inp { width: 80px; }
+
+/* Matrix scroll wrapper — taller now that elevation bar moved to left panel */
+.matrix-scroll {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: calc(100vh - 112px);
+}
+
+/* Matrix table */
+.mtbl {
+  border-collapse: collapse;
+  font-size: .75rem;
+  min-width: max-content;
+}
+
+/* Sticky header */
+.mtbl thead { position: sticky; top: 0; z-index: 10; }
+.mtbl thead tr { background: var(--surface); }
+
+/* Yardage column header — also sticky left */
+.th-yds {
+  font-size: .63rem; font-weight: 700; color: var(--t3);
+  text-transform: uppercase; letter-spacing: .07em;
+  padding: 8px 10px; text-align: center;
+  min-width: 52px; width: 52px;
+  border-right: 2px solid var(--sep);
+  background: var(--surface);
+  position: sticky; left: 0; z-index: 11;
+}
+
+/* Club column headers — compact */
+.th-club {
+  min-width: 46px; width: 46px;
+  height: 56px;
+  vertical-align: bottom;
+  padding: 4px 2px 5px;
+  text-align: center;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+}
+.th-club:last-child { border-right: none; }
+
+.club-vert {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: .79rem; font-weight: 700; color: var(--t1);
+  white-space: nowrap; letter-spacing: .02em;
+  display: inline-block; line-height: 1.2;
+}
+.club-vert.empty { color: var(--t3); font-weight: 400; font-style: italic; }
+
+/* Body */
+.mtbl tbody tr { border-bottom: 1px solid var(--border); }
+.mtbl tbody tr:last-child { border-bottom: none; }
+
+/* ── Tiered row banding ──────────────────────────────────────────────────
+   50-yard rows:  most distinct — heavier yardage label, darkest band
+   25-yard rows:  middle tone
+   Default rows:  lightest (base surface)
+   ───────────────────────────────────────────────────────────────────── */
+.mtbl tbody tr.band-50 .td-cell { background: var(--surface3); }
+.mtbl tbody tr.band-25 .td-cell { background: var(--surface2); }
+
+/* Sticky yardage label */
+.td-yds {
+  font-size: .73rem; font-weight: 600; color: var(--t3);
+  padding: 1px 8px; text-align: center;
+  border-right: 2px solid var(--sep);
+  background: var(--surface);
+  position: sticky; left: 0; z-index: 1;
+  white-space: nowrap;
+}
+.td-yds.m50 {
+  font-weight: 800; color: var(--t1);
+  background: var(--surface3);
+  border-top: 1px solid var(--sep);
+}
+.td-yds.m25 {
+  font-weight: 700; color: var(--t2);
+  background: var(--surface2);
+}
+
+/* Data cells — compact height to fit more rows on screen */
+.td-cell {
+  padding: 1px 4px; text-align: center;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  height: 20px; min-width: 46px;
+}
+.td-cell:last-child { border-right: none; }
+
+/* ── Club speed zone highlights ──────────────────────────────────────────
+   cell-center  =  club's yardage row  (darkened green + white text, shows speed)
+   cell-hi      =  +5 yds / ~+2 mph   (shows yardage value)
+   cell-lo1     =  -5 yds / ~-2 mph   (shows yardage value)
+   cell-lo2     =  -10 yds / ~-4 mph  (color only)
+   !important overrides row-band backgrounds.
+   ───────────────────────────────────────────────────────────────────── */
+.td-cell.cell-center {
+  background: #1a7c36 !important;
+  color: #fff;
+  font-weight: 800;
+  font-size: .8rem;
+}
+/* hi / lo1 / lo2 show calculated speed — subdued light-green text */
+.td-cell.cell-hi, .td-cell.cell-lo1, .td-cell.cell-lo2 {
+  font-size: .70rem;
+  font-weight: 600;
+  color: rgba(48,209,88,.60);
+}
+[data-theme="light"]  .td-cell.cell-hi,
+[data-theme="light"]  .td-cell.cell-lo1,
+[data-theme="light"]  .td-cell.cell-lo2 { color: rgba(26,122,53,.70); }
+[data-theme="earthy"] .td-cell.cell-hi,
+[data-theme="earthy"] .td-cell.cell-lo1,
+[data-theme="earthy"] .td-cell.cell-lo2 { color: rgba(167,215,184,.65); }
+.td-cell.cell-hi  { background: rgba(48,209,88,.40) !important; }
+.td-cell.cell-lo1 { background: rgba(48,209,88,.28) !important; }
+.td-cell.cell-lo2 { background: rgba(48,209,88,.14) !important; }
+
+[data-theme="light"] .td-cell.cell-center { background: #196b2f !important; color: #fff; }
+[data-theme="light"] .td-cell.cell-hi  { background: rgba(52,199,89,.34) !important; }
+[data-theme="light"] .td-cell.cell-lo1 { background: rgba(52,199,89,.22) !important; }
+[data-theme="light"] .td-cell.cell-lo2 { background: rgba(52,199,89,.11) !important; }
+
+[data-theme="earthy"] .td-cell.cell-center { background: #2e7048 !important; color: #fff; }
+[data-theme="earthy"] .td-cell.cell-hi  { background: rgba(167,215,184,.40) !important; }
+[data-theme="earthy"] .td-cell.cell-lo1 { background: rgba(167,215,184,.28) !important; }
+[data-theme="earthy"] .td-cell.cell-lo2 { background: rgba(167,215,184,.14) !important; }
+
+/* ── Units panel ─────────────────────────────────────────────────────────── */
+.units-wrap { margin-top: 12px; }
+
+.units-hdr {
+  display: flex; align-items: center; gap: 7px;
+  padding: 9px 14px 6px;
+}
+.units-title { font-size: .82rem; font-weight: 700; color: var(--t2); }
+
+.units-body {
+  display: flex; gap: 8px;
+  padding: 4px 14px 12px;
+}
+
+.units-opt {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 1px;
+  cursor: pointer; padding: 7px 13px;
+  border: 1px solid var(--border); border-radius: 9px;
+  transition: background .14s, border-color .14s, color .14s;
+  user-select: none; flex: 1;
+}
+.units-opt:hover { background: var(--nav-active); }
+.units-opt.active {
+  border-color: var(--green);
+  background: var(--green-lo);
+}
+.units-opt-name {
+  font-size: .82rem; font-weight: 600; color: var(--t2);
+  transition: color .14s;
+}
+.units-opt.active .units-opt-name { color: var(--green-text); }
+.units-opt-detail { font-size: .65rem; color: var(--t3); }
+
+/* ── Swing Adjustment panel — static reference table ─────────────────────── */
+.swing-wrap { margin-top: 12px; }
+
+.swing-hdr {
+  display: flex; align-items: center; gap: 7px;
+  padding: 9px 14px 5px;
+}
+.swing-title { font-size: .82rem; font-weight: 700; color: var(--t2); }
+
+#swingCategories { padding: 0 14px 10px; }
+
+.swing-toggle-row { display: flex; gap: 7px; padding: 0 0 8px; }
+.swing-opt {
+  flex: 1; text-align: center;
+  cursor: pointer; padding: 5px 8px;
+  border: 1px solid var(--border); border-radius: 8px;
+  font-size: .75rem; font-weight: 500; color: var(--t2);
+  transition: background .14s, border-color .14s, color .14s;
+  user-select: none;
+}
+.swing-opt:hover { background: var(--nav-active); color: var(--t1); }
+.swing-opt.active {
+  border-color: var(--accent); background: var(--accent-lo);
+  color: var(--accent); font-weight: 600;
+}
+
+.swing-tbl { width: 100%; border-collapse: collapse; }
+
+.swing-tbl thead th {
+  font-size: .64rem; font-weight: 700; color: var(--t3);
+  text-transform: uppercase; letter-spacing: .07em;
+  padding: 4px 6px 5px; border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.swing-th-dot { width: 18px; }
+.swing-th-r   { text-align: right; }
+
+.swing-row { border-bottom: 1px solid var(--border); }
+.swing-row:last-child { border-bottom: none; }
+.swing-row td { padding: 5px 6px; vertical-align: middle; }
+
+.swing-dot {
+  display: inline-block;
+  width: 10px; height: 10px; border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(0,0,0,.15);
+}
+.swing-body  { font-size: .80rem; font-weight: 700; color: var(--t1); }
+.swing-clock { font-size: .76rem; color: var(--t2); }
+.swing-pct   { font-size: .74rem; font-weight: 700; text-align: right; }
+
+/* ── Matrix partial-swing cells ─────────────────────────────────────────────
+   Muted tints (35% opacity) — panel stays vivid, matrix stays secondary.
+   Short labels (Clock: "10" / Body: "S") at low contrast so they don't
+   compete with the speed-band cells.
+   ─────────────────────────────────────────────────────────────────────────── */
+.td-cell.swing-shoulder,
+.td-cell.swing-chest,
+.td-cell.swing-ribs,
+.td-cell.swing-hip { font-size: .67rem; font-weight: 800; color: rgba(255,255,255,.90); }
+
+.td-cell.swing-shoulder { background: rgba(255,214,10,.50) !important; }
+.td-cell.swing-chest    { background: rgba(255,159,10,.50) !important; }
+.td-cell.swing-ribs     { background: rgba(255,102,0,.50)  !important; }
+.td-cell.swing-hip      { background: rgba(255,69,58,.50)  !important; }

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Graybeard's PuttBook</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <link rel="stylesheet" href="assets/css/puttbook.css">
+
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+</head>
+<body>
+
+<!-- ── Header ────────────────────────────────────────────────────────────── -->
+<header>
+  <a class="logo" href="index.html">
+    <svg class="logo-mark" viewBox="0 0 22 30" fill="none" aria-hidden="true">
+      <line x1="7" y1="1.5" x2="7" y2="27" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M7 2L21 8.5L7 15Z" fill="currentColor"/>
+      <line x1="1" y1="27" x2="13" y2="27" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" opacity="0.45"/>
+    </svg>
+    <div>
+      <div class="logo-name">Graybeard's</div>
+      <div class="logo-sub">PuttBook</div>
+    </div>
+  </a>
+
+  <nav class="main-nav" aria-label="Site navigation">
+    <a href="index.html" class="nav-link">YardBook</a>
+    <a href="puttbook.html" class="nav-link active">PuttBook</a>
+  </nav>
+
+  <div class="hdr-right">
+    <button class="theme-toggle-btn" id="themeBtn" aria-label="Toggle light/dark mode"></button>
+  </div>
+</header>
+
+<!-- ── App ───────────────────────────────────────────────────────────────── -->
+<main>
+
+  <!-- ══════════════════════════════════
+       LEFT — Inputs
+  ══════════════════════════════════ -->
+  <div>
+
+    <!-- Green Speed -->
+    <div class="panel">
+      <div class="panel-hdr">
+        <span class="panel-title">🏌️ Green Speed</span>
+      </div>
+      <div class="stimp-section">
+        <div class="stimp-label">Stimpmeter</div>
+        <div class="stimp-btns">
+          <button class="stimp-btn" data-stimp="8">8</button>
+          <button class="stimp-btn" data-stimp="9">9</button>
+          <button class="stimp-btn active" data-stimp="10">10</button>
+          <button class="stimp-btn" data-stimp="11">11</button>
+          <button class="stimp-btn" data-stimp="12">12</button>
+          <button class="stimp-btn" data-stimp="13">13</button>
+        </div>
+        <div class="stimp-manual-row">
+          <span class="stimp-manual-lbl">Or enter:</span>
+          <input type="number" class="stimp-manual-inp" id="stimpInput"
+            min="6" max="16" step="0.5" placeholder="10.0" value="10.0">
+        </div>
+        <div class="mu-row">
+          <span class="mu-lbl">μ (rg) =</span>
+          <span class="mu-val" id="muDisplay">0.0559</span>
+          <span class="mu-eq">0.559 ÷ Stimp</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Baseline Calibration -->
+    <div class="panel panel-sub">
+      <div class="panel-hdr">
+        <span class="panel-title">📏 Calibration</span>
+      </div>
+      <div class="calib-section">
+
+        <!-- Baseline stroke -->
+        <div class="calib-row">
+          <span class="calib-lbl">Baseline</span>
+          <input type="number" class="calib-inp" id="baselineStroke"
+            min="1" max="99" step="0.5" value="23.0">
+          <span class="calib-unit lbl-stroke-unit">cm</span>
+          <span class="calib-note">at</span>
+          <input type="number" class="calib-inp" id="baselineDist"
+            min="1" max="99" step="1" value="10" style="width:52px;">
+          <span class="calib-unit lbl-dist-unit">ft</span>
+        </div>
+        <div style="font-size:.68rem;color:var(--t3);padding:0 0 4px;">
+          Your stroke for the flat reference putt
+        </div>
+
+        <!-- My zero stroke -->
+        <div class="calib-row my-stroke-row">
+          <span class="calib-lbl">My Zero Stroke</span>
+          <input type="number" class="calib-inp" id="myZeroStroke"
+            min="1" max="99" step="0.5" value="23.0">
+          <span class="calib-unit lbl-stroke-unit">cm</span>
+        </div>
+        <div style="font-size:.68rem;color:var(--t3);padding:0 0 6px;">
+          Highlighted row (column color) = zero stroke distance per slope
+        </div>
+
+        <!-- My max stroke -->
+        <div class="calib-row" style="background:rgba(255,69,58,.10);border:1px solid rgba(255,69,58,.35);border-radius:8px;padding:6px 9px;">
+          <span class="calib-lbl" style="color:var(--danger);">My Max Stroke</span>
+          <input type="number" class="calib-inp" id="myMaxStroke"
+            min="1" max="99" step="0.5" value="46.0">
+          <span class="calib-unit lbl-stroke-unit">cm</span>
+        </div>
+        <div style="font-size:.68rem;color:var(--t3);">
+          Cells above this are highlighted red — use velocity, not length
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Zero Putt Calculator -->
+    <div class="panel panel-sub">
+      <div class="panel-hdr">
+        <span class="panel-title">⚡ Zero Putt Calc</span>
+      </div>
+      <div class="zero-section">
+        <div class="zero-slope-row">
+          <span class="zero-slope-lbl">Slope</span>
+          <input type="number" class="zero-slope-inp" id="zeroPuttSlope"
+            min="0" max="8" step="0.5" value="2.0">
+          <span class="calib-unit">%</span>
+        </div>
+        <div class="zero-results">
+          <div class="zero-result-row">
+            <span class="zero-dir-lbl up">↑ Uphill</span>
+            <span class="zero-result-val" id="rollUp">—</span>
+          </div>
+          <div class="zero-result-row">
+            <span class="zero-dir-lbl down">↓ Downhill</span>
+            <span class="zero-result-val" id="rollDown">—</span>
+          </div>
+        </div>
+        <div class="zero-hint">
+          How far your stroke rolls at this slope with My Stroke above.
+          Double-click to reset slope to zero.
+        </div>
+      </div>
+    </div>
+
+    <!-- Units -->
+    <div class="panel panel-sub">
+      <div class="panel-hdr">
+        <span class="panel-title">📐 Units</span>
+      </div>
+      <div class="units-section">
+        <div class="unit-row">
+          <span class="unit-lbl">Stroke</span>
+          <div class="unit-grp">
+            <button class="unit-btn stroke-unit-opt active" data-unit="cm">cm</button>
+            <button class="unit-btn stroke-unit-opt" data-unit="in">in</button>
+          </div>
+        </div>
+        <div class="unit-row">
+          <span class="unit-lbl">Distance</span>
+          <div class="unit-grp">
+            <button class="unit-btn dist-unit-opt active" data-unit="ft">ft</button>
+            <button class="unit-btn dist-unit-opt" data-unit="m">m</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       RIGHT — Matrix + Legend (flex column)
+  ══════════════════════════════════════════ -->
+  <div class="pb-right-col">
+
+    <!-- Matrix panel -->
+    <div class="panel pb-matrix-panel">
+      <div class="panel-hdr">
+        <span class="panel-title">📊 Backswing Length Matrix</span>
+        <div style="display:flex;gap:7px;align-items:center;">
+          <span style="font-size:.72rem;color:var(--t3);">
+            Values in <span class="lbl-stroke-unit">cm</span>
+          </span>
+          <a href="puttbook-mobile.html" class="mob-view-btn" target="_blank">📱 Mobile</a>
+          <a href="puttbook-print.html" class="mob-view-btn" target="_blank">📄 Print</a>
+          <button class="export-btn" id="pbExportBtn" onclick="downloadMatrix()">📸 Export</button>
+        </div>
+      </div>
+      <div class="pb-matrix-scroll">
+        <table class="pb-tbl" id="puttTable">
+          <thead id="puttHead"></thead>
+          <tbody id="puttBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Legend panel (separate) -->
+    <div class="panel">
+      <div class="panel-hdr">
+        <span class="panel-title">📋 Legend</span>
+      </div>
+      <div class="pb-notes">
+
+        <div class="pb-note">
+          <span class="pb-note-dot" style="background:#1a7c36;"></span>
+          <div>
+            <strong>Zero Stroke</strong>
+            (<span id="noteZeroStroke">—</span>) —
+            Your calibrated minimum-speed stroke. The shaded band in each slope
+            column marks the putt distance where exactly this stroke length is required.
+          </div>
+        </div>
+
+        <div class="pb-note">
+          <span class="pb-note-dot" style="background:#af52de;"></span>
+          <div>
+            <strong>Mid Stroke</strong>
+            (<span id="noteMidStroke">—</span>) —
+            1.5× your zero stroke — a midpoint reference between minimum
+            and double stroke.
+          </div>
+        </div>
+
+        <div class="pb-note">
+          <span class="pb-note-dot" style="background:#5ac8fa;"></span>
+          <div>
+            <strong>Double Stroke</strong>
+            (<span id="noteDblStroke">—</span>) —
+            Twice your zero stroke length. A useful upper-range benchmark for
+            controlled stroke-length putting before needing to change approach.
+          </div>
+        </div>
+
+        <div class="pb-note">
+          <span class="pb-note-dot" style="background:#ff453a;"></span>
+          <div>
+            <strong>Max Stroke exceeded</strong>
+            (above <span id="noteMaxStroke">—</span>) —
+            The required backswing exceeds your maximum stroke length. For these
+            distances, prioritize increasing <em>clubhead velocity and
+            acceleration</em> through swing tempo rather than extending stroke
+            length further. A longer, slower stroke becomes inconsistent —
+            a shorter, more accelerating motion delivers better speed control.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- .pb-right-col -->
+
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
+        crossorigin="anonymous"></script>
+<script src="assets/js/puttbook.js"></script>
+
+</body>
+</html>

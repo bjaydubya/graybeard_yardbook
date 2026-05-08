@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- iOS home-screen web-app meta (Add to Home Screen = no browser chrome) -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="YardBook">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="favicon.svg">
+  <title>YardBook · Matrix</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Shared design tokens + all existing matrix cell classes -->
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <link rel="stylesheet" href="assets/css/yardbook.css">
+
+  <style>
+    /* ── Mobile layout overrides ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%; height: 100dvh;   /* dvh = dynamic viewport, no browser-chrome bleed */
+      overflow: hidden;
+      background: var(--bg);
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Fixed header bar ────────────────────────────────────────────────── */
+    .mob-hdr {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: 50px;
+      /* Safe area inset for iPhone notch */
+      padding-top: env(safe-area-inset-top, 0px);
+      height: calc(50px + env(safe-area-inset-top, 0px));
+      background: var(--hdr);
+      border-bottom: 1px solid var(--hdr-border);
+      display: flex; align-items: flex-end; gap: 10px;
+      padding-left: 12px; padding-right: 12px; padding-bottom: 8px;
+      z-index: 200;
+    }
+    .mob-back {
+      color: var(--accent); text-decoration: none;
+      font-size: .82rem; font-weight: 600; white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .mob-title {
+      font-size: .95rem; font-weight: 800; color: var(--t1);
+      letter-spacing: -.02em; flex: 1; text-align: center;
+    }
+    .mob-elev-badge {
+      font-size: .70rem; font-weight: 700; border-radius: 20px;
+      padding: 2px 9px; white-space: nowrap; flex-shrink: 0;
+      background: var(--green-lo); color: var(--green-text);
+    }
+    .mob-elev-badge.away { background: var(--accent-lo); color: var(--accent); }
+    .mob-elev-badge.down { background: var(--danger-lo); color: var(--danger); }
+
+    /* ── Scrollable matrix area ──────────────────────────────────────────── */
+    .mob-wrap {
+      position: fixed;
+      top: calc(50px + env(safe-area-inset-top, 0px));
+      bottom: env(safe-area-inset-bottom, 0px);
+      left: 0; right: 0;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+    }
+
+    /* ── Compact cell sizes for phone ────────────────────────────────────── */
+    /* Override the desktop widths from yardbook.css                          */
+    .th-yds  { min-width: 42px !important; width: 42px !important; font-size: .60rem !important; padding: 6px 4px !important; }
+    .th-club { min-width: 36px !important; width: 36px !important; height: 58px !important; }
+    .club-vert { font-size: .70rem !important; }
+    .td-yds  { font-size: .68rem !important; padding: 1px 4px !important; }
+    .td-cell { min-width: 36px !important; height: 19px !important; font-size: .68rem !important; }
+
+    /* Speed band cells — keep them legible at small size */
+    .td-cell.cell-center { font-size: .72rem !important; }
+    .td-cell.cell-hi,
+    .td-cell.cell-lo1,
+    .td-cell.cell-lo2    { font-size: .64rem !important; }
+
+    /* Swing cells — keep labels visible */
+    .td-cell.swing-shoulder,
+    .td-cell.swing-chest,
+    .td-cell.swing-ribs,
+    .td-cell.swing-hip   { font-size: .60rem !important; font-weight: 800 !important; }
+
+    /* ── Empty / error state ─────────────────────────────────────────────── */
+    .mob-empty {
+      position: fixed;
+      top: calc(50px + env(safe-area-inset-top, 0px));
+      left: 0; right: 0; bottom: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 14px; padding: 32px; text-align: center;
+    }
+    .mob-empty-icon  { font-size: 3rem; }
+    .mob-empty-title { font-size: 1.15rem; font-weight: 700; color: var(--t1); }
+    .mob-empty-sub   { font-size: .88rem; color: var(--t2); line-height: 1.55; max-width: 300px; }
+    .mob-empty-link  {
+      display: inline-block; margin-top: 6px;
+      background: var(--green-lo); color: var(--green-text);
+      border: 1px solid var(--green); border-radius: 10px;
+      padding: 10px 22px; font-size: .9rem; font-weight: 700;
+      text-decoration: none; font-family: inherit;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Fixed header -->
+<header class="mob-hdr">
+  <a href="index.html" class="mob-back">← App</a>
+  <div class="mob-title">⛳ YardBook</div>
+  <span class="mob-elev-badge" id="elevBadge">Home</span>
+</header>
+
+<!-- Scrollable matrix container — filled by JS -->
+<div class="mob-wrap" id="mobWrap"></div>
+
+<script>
+// ── Load saved bag from the main app ──────────────────────────────────────
+const STORAGE_KEY = 'graybeards_yardbook';
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) {}
+
+const bag         = saved.bag    || [];
+const prefs       = saved.prefs  || {};
+const isMetric    = !!prefs.isMetric;
+const swingSystem = prefs.swingSystem || 'clock';
+
+// ── Mirror constants from yardbook.js ─────────────────────────────────────
+const MIN_YARDS       = 50;
+const YARD_STEP       = 5;
+const DEFAULT_MAX_Y   = 230;
+const MATRIX_HEADROOM = 20;
+const SWING_MAX_YARDS = 180;
+const YARD_TO_M       = 0.9144;
+const MPH_TO_KPH      = 1.60934;
+
+const SWING_DATA = [
+  { body:'Full',     clock:'11:00', clockShort:'11', bodyInit:'F', delta:  0, cls: null            },
+  { body:'Shoulder', clock:'10:00', clockShort:'10', bodyInit:'S', delta:-15, cls:'swing-shoulder' },
+  { body:'Chest',    clock:'9:00',  clockShort:'9',  bodyInit:'C', delta:-30, cls:'swing-chest'    },
+  { body:'Ribs',     clock:'8:00',  clockShort:'8',  bodyInit:'R', delta:-45, cls:'swing-ribs'     },
+  { body:'Hip',      clock:'7:00',  clockShort:'7',  bodyInit:'H', delta:-60, cls:'swing-hip'      },
+];
+
+// ── Apply theme — shared key, dark/light only ──────────────────────────────
+const _t = localStorage.getItem('graybeards_theme');
+document.documentElement.dataset.theme = _t === 'light' ? 'light' : 'dark';
+
+// ── Reconstruct elevation factor ───────────────────────────────────────────
+let elevPct = 0;
+if (prefs.pctManual && prefs.pctOverride != null) {
+  elevPct = prefs.pctOverride;
+} else {
+  const home = prefs.homeElev || 0;
+  const away = prefs.awayElev || 0;
+  const divisor = isMetric ? 304.8 : 1000;
+  elevPct = ((away - home) / divisor) * 2;
+}
+const elevFactor = 1 + elevPct / 100;
+
+// Update elevation badge
+const badge = document.getElementById('elevBadge');
+if (Math.abs(elevPct) >= 0.05) {
+  badge.textContent = (elevPct > 0 ? '+' : '') + elevPct.toFixed(1) + '%';
+  badge.className   = 'mob-elev-badge ' + (elevPct > 0 ? 'away' : 'down');
+}
+
+// ── Display helpers ────────────────────────────────────────────────────────
+function toDist(ft) {
+  if (ft == null) return '';
+  return isMetric ? Math.round(ft * YARD_TO_M) : ft;
+}
+function toSpeed(mph) {
+  if (mph == null) return '';
+  return isMetric ? Math.round(mph * MPH_TO_KPH) : mph;
+}
+function esc(s) {
+  return String(s ?? '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+}
+
+// ── Render ─────────────────────────────────────────────────────────────────
+const wrap    = document.getElementById('mobWrap');
+const clubs   = bag.filter(c => c.name || c.yardage).slice(0, 14);
+
+if (clubs.length === 0) {
+  wrap.innerHTML = `
+    <div class="mob-empty">
+      <div class="mob-empty-icon">⛳</div>
+      <div class="mob-empty-title">Bag not set up yet</div>
+      <div class="mob-empty-sub">
+        Open the full YardBook app on your computer to enter your clubs,
+        yardages, and club speeds. Then return here for your mobile matrix.
+      </div>
+      <a href="index.html" class="mob-empty-link">Go to Full App →</a>
+    </div>`;
+} else {
+  // Compute matrix bounds
+  const maxRaw = clubs.reduce((m, c) =>
+    Math.max(m, Math.round((c.yardage || 0) * elevFactor)), DEFAULT_MAX_Y
+  );
+  const maxY = Math.ceil(maxRaw / YARD_STEP) * YARD_STEP + MATRIX_HEADROOM;
+
+  // Precompute speed + swing zones per club
+  const zones = clubs.map(club => {
+    if (!club.yardage) return null;
+    const base = Math.round((club.yardage * elevFactor) / YARD_STEP) * YARD_STEP;
+    return {
+      hi: base + YARD_STEP, center: base,
+      lo1: base - YARD_STEP, lo2: base - 2 * YARD_STEP,
+      speed: club.speed,
+      swings: club.yardage <= SWING_MAX_YARDS
+        ? SWING_DATA.filter(s => s.delta !== 0).map(s => ({
+            y:     base + s.delta,
+            cls:   s.cls,
+            label: swingSystem === 'body' ? s.bodyInit : s.clockShort,
+          }))
+        : [],
+    };
+  });
+
+  // Build HTML string (fastest for large tables on mobile)
+  const rows = [];
+
+  // Header row
+  const hdrCells = [`<th class="th-yds">${isMetric ? 'M' : 'YDS'}</th>`];
+  clubs.forEach(c => {
+    hdrCells.push(`<th class="th-club"><span class="club-vert">${esc(c.name || '—')}</span></th>`);
+  });
+  rows.push(`<thead><tr>${hdrCells.join('')}</tr></thead>`);
+
+  // Body rows — high to low
+  const bodyRows = [];
+  for (let y = maxY; y >= MIN_YARDS; y -= YARD_STEP) {
+    const is50 = y % 50 === 0;
+    const is25 = !is50 && y % 25 === 0;
+
+    const yClass = 'td-yds' + (is50 ? ' m50' : is25 ? ' m25' : '');
+    const cells = [`<td class="${yClass}">${toDist(y)}</td>`];
+
+    zones.forEach(z => {
+      if (!z) { cells.push('<td class="td-cell"></td>'); return; }
+
+      if      (y === z.center) {
+        cells.push(`<td class="td-cell cell-center">${toSpeed(z.speed)}</td>`);
+      } else if (y === z.hi) {
+        cells.push(`<td class="td-cell cell-hi">${z.speed != null ? toSpeed(z.speed + 2) : ''}</td>`);
+      } else if (y === z.lo1) {
+        cells.push(`<td class="td-cell cell-lo1">${z.speed != null ? toSpeed(z.speed - 2) : ''}</td>`);
+      } else if (y === z.lo2) {
+        cells.push(`<td class="td-cell cell-lo2">${z.speed != null ? toSpeed(z.speed - 4) : ''}</td>`);
+      } else {
+        const sw = z.swings.find(s => s.y === y);
+        if (sw) {
+          cells.push(`<td class="td-cell ${sw.cls}">${sw.label}</td>`);
+        } else {
+          const band = is50 ? ' style="background:var(--surface3)"'
+                     : is25 ? ' style="background:var(--surface2)"' : '';
+          cells.push(`<td class="td-cell"${band}></td>`);
+        }
+      }
+    });
+
+    const rowClass = is50 ? ' class="band-50"' : is25 ? ' class="band-25"' : '';
+    bodyRows.push(`<tr${rowClass}>${cells.join('')}</tr>`);
+  }
+
+  rows.push(`<tbody>${bodyRows.join('')}</tbody>`);
+  wrap.innerHTML = `<table class="mtbl">${rows.join('')}</table>`;
+}
+</script>
+
+</body>
+</html>
